@@ -1,0 +1,36 @@
+{
+  "type": "module",
+  "name": "file-encryption-tool-212119-frontend-react",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^2.1.0",
+    "@chakra-ui/react": "^2.8.0",
+    "@fortawesome/fontawesome-free": "latest",
+    "@fortawesome/fontawesome-svg-core": "latest",
+    "@fortawesome/free-brands-svg-icons": "latest",
+    "@fortawesome/free-solid-svg-icons": "latest",
+    "@fortawesome/react-fontawesome": "latest",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "axios": "^1.6.2",
+    "chart.js": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "latest",
+    "react-icons": "latest",
+    "react-redux": "^8.1.3",
+    "react-router-dom": "^6.22.3",
+    "socket.io-client": "^4.7.5",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "latest",
+    "@babel/preset-react": "latest",
+    "@vitejs/plugin-react": "latest",
+    "vite": "^5.4.0"
+  }
+}
