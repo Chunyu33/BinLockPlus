@@ -8,16 +8,20 @@ import {
   Button,
   ButtonGroup,
   useToast,
+  useColorModeValue,
   Text,
   Divider,
   Progress,
   HStack,
   Icon
 } from '@chakra-ui/react';
+import theme from './theme';
 import { DownloadIcon, LockIcon, UnlockIcon, CloseIcon } from '@chakra-ui/icons';
 import FileUpload from './components/FileUpload';
 import KeyInput from './components/KeyInput';
 import { encryptFile, decryptFile } from './utils/crypto';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const App = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -32,6 +36,14 @@ const App = () => {
     setProcessedFiles([]);
   };
 
+  const handleRemoveFile = (index) => {
+    setSelectedFiles((prev) => {
+      const arr = Array.from(prev || []);
+      arr.splice(index, 1);
+      return arr;
+    });
+  };
+
   const handleEncrypt = async () => {
     if (!selectedFiles || selectedFiles.length === 0) {
       toast({ title: '请至少选择一个文件', status: 'warning', duration: 3000 });
@@ -42,14 +54,14 @@ const App = () => {
       return;
     }
 
+    // 并发限制（默认并发数为 3）
+    const concurrency = 3;
     setIsProcessing(true);
     try {
-      const results = await Promise.all(
-        selectedFiles.map(async (f) => {
-          const blob = await encryptFile(f, password);
-          return { originalName: f.name, blob };
-        })
-      );
+      const results = await runWithConcurrency(selectedFiles, concurrency, async (f) => {
+        const blob = await encryptFile(f, password);
+        return { originalName: f.name, blob };
+      });
       setProcessedFiles(results);
       toast({ title: '批量加密完成', status: 'success', duration: 3000 });
     } catch (error) {
@@ -69,14 +81,13 @@ const App = () => {
       return;
     }
 
+    const concurrency = 3;
     setIsProcessing(true);
     try {
-      const results = await Promise.all(
-        selectedFiles.map(async (f) => {
-          const res = await decryptFile(f, password);
-          return { originalName: f.name, ...res };
-        })
-      );
+      const results = await runWithConcurrency(selectedFiles, concurrency, async (f) => {
+        const res = await decryptFile(f, password);
+        return { originalName: f.name, ...res };
+      });
       setProcessedFiles(results);
       toast({ title: '批量解密完成', status: 'success', duration: 3000 });
     } catch (error) {
@@ -84,6 +95,49 @@ const App = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // 并发执行工具
+  async function runWithConcurrency(items, concurrency, worker) {
+    const results = [];
+    const executing = [];
+
+    for (const item of items) {
+      const p = Promise.resolve().then(() => worker(item));
+      results.push(p);
+
+      if (concurrency <= items.length) {
+        const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+        executing.push(e);
+        if (executing.length >= concurrency) {
+          await Promise.race(executing);
+        }
+      }
+    }
+
+    return Promise.all(results);
+  }
+
+  const handleDownloadZip = async () => {
+    if (!processedFiles || processedFiles.length === 0) return;
+    const zip = new JSZip();
+
+    for (const item of processedFiles) {
+      const name = item.originalName || 'file';
+      let fileName;
+      if (mode === 'encrypt') {
+        const baseName = name.includes('.') ? name.substring(0, name.lastIndexOf('.')) : name;
+        fileName = `${baseName}.encrypted`;
+        zip.file(fileName, item.blob);
+      } else {
+        const ext = item.extension ? `.${item.extension}` : '';
+        fileName = name.replace(/\.encrypted$/, '') + ext;
+        zip.file(fileName, item.blob);
+      }
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, `processed_files_${Date.now()}.zip`);
   };
 
   const handleClear = () => {
@@ -123,12 +177,12 @@ const App = () => {
   };
 
   return (
-    <ChakraProvider>
+  <ChakraProvider theme={theme}>
       <Box minH="100vh" bg="gray.50" py={10}>
         <Container maxW="container.md">
           <VStack spacing={8} align="stretch">
             <Box textAlign="center">
-              <Heading size="2xl" color="blue.600" mb={2}>
+              <Heading size="2xl" color="brand.600" mb={2}>
                 <Icon as={LockIcon} mr={3} />
                 BinLockPlus-Web
               </Heading>
@@ -141,18 +195,22 @@ const App = () => {
               <VStack spacing={6} align="stretch">
                 <HStack justify="center" spacing={4}>
                   <Button
-                    colorScheme={mode === 'encrypt' ? 'blue' : 'gray'}
+                    colorScheme={mode === 'encrypt' ? 'brand' : 'gray'}
+                    variant={mode === 'encrypt' ? 'solid' : 'ghost'}
                     onClick={() => setMode('encrypt')}
                     leftIcon={<LockIcon />}
                     size="lg"
+                    aria-pressed={mode === 'encrypt'}
                   >
                     加密
                   </Button>
                   <Button
-                    colorScheme={mode === 'decrypt' ? 'blue' : 'gray'}
+                    colorScheme={mode === 'decrypt' ? 'brand' : 'gray'}
+                    variant={mode === 'decrypt' ? 'solid' : 'ghost'}
                     onClick={() => setMode('decrypt')}
                     leftIcon={<UnlockIcon />}
                     size="lg"
+                    aria-pressed={mode === 'decrypt'}
                   >
                     解密
                   </Button>
@@ -163,6 +221,7 @@ const App = () => {
                 <FileUpload
                   onFileSelect={handleFileSelect}
                   selectedFiles={selectedFiles}
+                  onFileRemove={handleRemoveFile}
                 />
 
                 <KeyInput
@@ -176,14 +235,14 @@ const App = () => {
                     <Text mb={2} color="gray.600">
                       正在处理中...
                     </Text>
-                    <Progress size="sm" isIndeterminate colorScheme="blue" />
+                    <Progress size="sm" isIndeterminate colorScheme="brand" />
                   </Box>
                 )}
 
                 <ButtonGroup spacing={4} w="full">
                   <Button
                     flex={2}
-                    colorScheme="blue"
+                    colorScheme="brand"
                     size="lg"
                       onClick={mode === 'encrypt' ? handleEncrypt : handleDecrypt}
                       isLoading={isProcessing}
@@ -204,6 +263,18 @@ const App = () => {
                     </Button>
                   )}
 
+                  {processedFiles && processedFiles.length > 0 && (
+                    <Button
+                      flex={1}
+                      colorScheme="brand"
+                      size="lg"
+                      leftIcon={<DownloadIcon />}
+                      onClick={handleDownloadZip}
+                    >
+                      导出 ZIP
+                    </Button>
+                  )}
+
                   <Button
                     flex={1}
                     colorScheme="red"
@@ -218,22 +289,27 @@ const App = () => {
                 </ButtonGroup>
 
                 {processedFiles && processedFiles.length > 0 && (
-                  <VStack spacing={3} align="stretch" mt={4}>
-                    {processedFiles.map((p, idx) => (
-                      <HStack key={idx} justify="space-between">
-                        <Text>{p.originalName}</Text>
-                        <HStack>
-                          <Button size="sm" onClick={() => handleDownload(p)} leftIcon={<DownloadIcon />}>下载</Button>
-                        </HStack>
-                      </HStack>
-                    ))}
-                  </VStack>
+                  <Box mt={4}>
+                    <Text fontSize="sm" mb={2} color="gray.600">处理结果</Text>
+                    <Box maxH="240px" overflowY="auto" borderRadius="md" px={2} py={2} bg={useColorModeValue('gray.50', 'gray.900')}>
+                      <VStack spacing={2} align="stretch">
+                        {processedFiles.map((p, idx) => (
+                          <HStack key={idx} justify="space-between">
+                            <Text isTruncated maxW="70%">{p.originalName}</Text>
+                            <HStack>
+                              <Button size="sm" onClick={() => handleDownload(p)} leftIcon={<DownloadIcon />}>下载</Button>
+                            </HStack>
+                          </HStack>
+                        ))}
+                      </VStack>
+                    </Box>
+                  </Box>
                 )}
               </VStack>
             </Box>
 
-            <Box bg="blue.50" p={6} borderRadius="lg">
-              <Heading size="sm" mb={3} color="blue.700">
+            <Box bg="brand.50" p={6} borderRadius="lg">
+              <Heading size="sm" mb={3} color="brand.700">
                 使用说明
               </Heading>
               <VStack align="start" spacing={2} fontSize="sm" color="gray.700">
@@ -242,6 +318,9 @@ const App = () => {
                 <Text>• 建议使用强密钥（至少8位，包含大小写字母、数字和符号）</Text>
                 <Text>• 所有操作均在本地完成，文件不会上传到服务器</Text>
               </VStack>
+            </Box>
+            <Box textAlign="center" mt={4} color="gray.500" fontSize="sm">
+              Evan · QQ: 1378813463 · QQ Mail: 1378813463@qq.com
             </Box>
           </VStack>
         </Container>

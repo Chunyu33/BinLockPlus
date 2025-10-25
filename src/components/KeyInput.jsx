@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Input,
@@ -10,14 +10,14 @@ import {
   FormHelperText,
   Progress,
   Text,
-  VStack
-} from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { checkPasswordStrength } from '../utils/crypto';
+  VStack,
+} from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { checkPasswordStrength } from "../utils/crypto";
 
-const KeyInput = ({ value, onChange, placeholder = '请输入密钥' }) => {
+const KeyInput = ({ value, onChange, placeholder = "请输入密钥" }) => {
   const [showKey, setShowKey] = useState(false);
-  const [strength, setStrength] = useState({ strength: 'weak', score: 0 });
+  const [strength, setStrength] = useState({ strength: "weak", score: 0 });
 
   useEffect(() => {
     setStrength(checkPasswordStrength(value));
@@ -25,23 +25,23 @@ const KeyInput = ({ value, onChange, placeholder = '请输入密钥' }) => {
 
   const getStrengthColor = () => {
     switch (strength.strength) {
-      case 'strong':
-        return 'green';
-      case 'medium':
-        return 'yellow';
+      case "strong":
+        return "green";
+      case "medium":
+        return "yellow";
       default:
-        return 'red';
+        return "red";
     }
   };
 
   const getStrengthText = () => {
     switch (strength.strength) {
-      case 'strong':
-        return '强';
-      case 'medium':
-        return '中等';
+      case "strong":
+        return "强";
+      case "medium":
+        return "中等";
       default:
-        return '弱';
+        return "弱";
     }
   };
 
@@ -51,14 +51,17 @@ const KeyInput = ({ value, onChange, placeholder = '请输入密钥' }) => {
         <FormLabel>密钥</FormLabel>
         <InputGroup size="lg">
           <Input
-            type={showKey ? 'text' : 'password'}
+            type={showKey ? "text" : "password"}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             bg="white"
             borderColor="gray.300"
-            _hover={{ borderColor: 'blue.400' }}
-            _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3182ce' }}
+            _hover={{ borderColor: "blue.400" }}
+            _focus={{
+              borderColor: "brand.500",
+              boxShadow: "0 0 0 1px rgba(79,172,80,0.25)",
+            }}
           />
           <InputRightElement>
             <IconButton
@@ -66,7 +69,7 @@ const KeyInput = ({ value, onChange, placeholder = '请输入密钥' }) => {
               icon={showKey ? <ViewOffIcon /> : <ViewIcon />}
               onClick={() => setShowKey(!showKey)}
               variant="ghost"
-              aria-label={showKey ? '隐藏密钥' : '显示密钥'}
+              aria-label={showKey ? "隐藏密钥" : "显示密钥"}
             />
           </InputRightElement>
         </InputGroup>

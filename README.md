@@ -56,8 +56,3 @@ npm run build
 ├─ vite.config.mjs
 └─ README.md
 ```
-
-## 后续改进计划
-
-- 在 `package.json` 添加 `engines` 字段或添加 `.nvmrc` 以固定 Node 版本。
-- 为大量文件批量处理实现并发限速或生成 zip 后下载（可引入 `jszip`）。
