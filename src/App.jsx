@@ -320,7 +320,7 @@ const App = () => {
               </VStack>
             </Box>
             <Box textAlign="center" mt={4} color="gray.500" fontSize="sm">
-              Evan · QQ: 1378813463 · QQ Mail: 1378813463@qq.com
+              Evan · QQ: 1378813463 · Mail: 1378813463@qq.com
             </Box>
           </VStack>
         </Container>
