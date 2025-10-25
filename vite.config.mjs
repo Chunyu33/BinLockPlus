@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -16,7 +15,7 @@ export default defineConfig({
     }
   })],
   build: {
-    outDir: 'public',
+    outDir: 'dist',             // 可选：建议使用 dist，便于部署到 nginx 指定目录
     assetsDir: 'assets'
   }
 })

@@ -1,10 +1,15 @@
 {
   "type": "module",
-  "name": "file-encryption-tool-212119-frontend-react",
+  "name": "file-encryption-tool",
+  "author": {
+    "name": "Evan Lau",
+    "email": "liucygm33@gmail.com"
+  },
   "version": "1.0.0",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview --port 5000"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
