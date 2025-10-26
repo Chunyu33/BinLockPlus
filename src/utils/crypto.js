@@ -10,6 +10,10 @@
  * @returns {Promise<CryptoKey>} 加密密钥
  */
 async function deriveKey(password, salt) {
+  // Ensure Web Crypto API is available (must be secure context: https or localhost)
+  if (!globalThis.crypto || !globalThis.crypto.subtle) {
+    throw new Error('Web Crypto API is not available in this context. Ensure the app is served over HTTPS or running on localhost and use a modern browser.');
+  }
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -40,6 +44,9 @@ async function deriveKey(password, salt) {
  * @returns {Promise<Blob>} 加密后的文件
  */
 export async function encryptFile(file, password) {
+  if (!globalThis.crypto || !globalThis.crypto.subtle) {
+    throw new Error('Web Crypto API is not available in this context. Ensure the app is served over HTTPS or running on localhost and use a modern browser.');
+  }
   const arrayBuffer = await file.arrayBuffer();
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -84,6 +91,9 @@ export async function encryptFile(file, password) {
  * @returns {Promise<{blob: Blob, extension: string}>} 解密后的文件和原始扩展名
  */
 export async function decryptFile(file, password) {
+  if (!globalThis.crypto || !globalThis.crypto.subtle) {
+    throw new Error('Web Crypto API is not available in this context. Ensure the app is served over HTTPS or running on localhost and use a modern browser.');
+  }
   const arrayBuffer = await file.arrayBuffer();
   const dataView = new Uint8Array(arrayBuffer);
 
