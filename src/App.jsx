@@ -272,9 +272,9 @@ const App = () => {
                   </Box>
                 )}
 
-                <ButtonGroup spacing={4} w="full">
+                <VStack spacing={3} w="full">
                   <Button
-                    flex={2}
+                    w="full"
                     colorScheme="brand"
                     size="lg"
                     onClick={mode === "encrypt" ? handleEncrypt : handleDecrypt}
@@ -287,31 +287,31 @@ const App = () => {
                   </Button>
 
                   {processedFiles && processedFiles.length > 0 && (
-                    <Button
-                      flex={1}
-                      colorScheme="green"
-                      size="lg"
-                      leftIcon={<DownloadIcon />}
-                      onClick={() => handleDownload(processedFiles[0])}
-                    >
-                      下载第一个
-                    </Button>
-                  )}
+                    <HStack spacing={3} w="full">
+                      <Button
+                        flex={1}
+                        colorScheme="green"
+                        size="lg"
+                        leftIcon={<DownloadIcon />}
+                        onClick={() => handleDownload(processedFiles[0])}
+                      >
+                        下载第一个
+                      </Button>
 
-                  {processedFiles && processedFiles.length > 0 && (
-                    <Button
-                      flex={1}
-                      colorScheme="brand"
-                      size="lg"
-                      leftIcon={<DownloadIcon />}
-                      onClick={handleDownloadZip}
-                    >
-                      导出 ZIP
-                    </Button>
+                      <Button
+                        flex={1}
+                        colorScheme="brand"
+                        size="lg"
+                        leftIcon={<DownloadIcon />}
+                        onClick={handleDownloadZip}
+                      >
+                        导出 ZIP
+                      </Button>
+                    </HStack>
                   )}
 
                   <Button
-                    flex={1}
+                    w="full"
                     colorScheme="red"
                     size="lg"
                     variant="outline"
@@ -324,7 +324,7 @@ const App = () => {
                   >
                     清空
                   </Button>
-                </ButtonGroup>
+                </VStack>
 
                 {processedFiles && processedFiles.length > 0 && (
                   <Box mt={4}>
