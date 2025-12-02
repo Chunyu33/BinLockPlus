@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   root: './',
-  base: '/encrypt/',
+  // base: '/encrypt/',
   plugins: [react({
     include: [/\.jsx?$/, /\.tsx?$/], // 处理所有js/jsx文件
     babel: {
